@@ -11,10 +11,10 @@ public class Earth_editor implements EntryPoint {
     		try{
     			TabPanel tp = new TabPanel();
     	
-//    			WhiteTriangleExample whiteTriangleExample = new WhiteTriangleExample();
-//    			tp.add(whiteTriangleExample, "White Triangle");
+    			EarthEditorViewer earthEditorViewer = new EarthEditorViewer();
+    			tp.add(earthEditorViewer, "Earth Editor");
     			
-//    			tp.selectTab(0);
+    			tp.selectTab(0);
     			RootPanel.get("gwtGL").add(tp);
     		} catch (Exception e) {
     			Window.alert("Sorry, Your Browser doesn't support WebGL!");
