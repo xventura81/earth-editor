@@ -27,28 +27,33 @@ public abstract class AbstractEarthEditorViewer extends FlexTable {
 	 */
 	protected AbstractEarthEditorViewer() {
 		// create the button to launch the editor
-		final PushButton button = new PushButton("Launch editor!");
-		setWidget(0, 0, button);
+//		final PushButton button = new PushButton("Launch editor!");
+//		setWidget(0, 0, button);
 		
 		WebGLContextAttributes contextAttributes = WebGLContextAttributes.create();
 		contextAttributes.setAlpha(false);
 
 		// create the WebGL Canvas
-		webGLCanvas = new WebGLCanvas(contextAttributes, "500px", "500px");
+		webGLCanvas = new WebGLCanvas(contextAttributes, "1000px", "1000px");
 		glContext = webGLCanvas.getGlContext();
-		glContext.viewport(0, 0, 500, 500);
+		glContext.viewport(0, 0, 1000, 1000);
 
 		setWidget(1, 0, webGLCanvas);
 		
-		// add a ClickHandler to start the editor when the button is clicked
-		button.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				button.setEnabled(false);
-				start();
-				webGLCanvas.setFocus(true);
-			}
-		});
+//		// add a ClickHandler to start the editor when the button is clicked
+//		button.addClickHandler(new ClickHandler() {
+//			@Override
+//			public void onClick(ClickEvent event) {
+//				button.setEnabled(false);
+//				start();
+//				webGLCanvas.setFocus(true);
+//			}
+//		});
+	}
+	
+	public void execute(){
+		start();
+		webGLCanvas.setFocus(true);
 	}
 
 	/**
