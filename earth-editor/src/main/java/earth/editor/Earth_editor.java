@@ -12,7 +12,7 @@ public class Earth_editor implements EntryPoint {
     			TabPanel tp = new TabPanel();
     	
     			EarthEditorViewer earthEditorViewer = new EarthEditorViewer();
-    			tp.add(earthEditorViewer, "Earth Editor");
+    			tp.add(earthEditorViewer, "Earth Editor" );
     			
     			tp.selectTab(0);
     			RootPanel.get("gwtGL").add(tp);

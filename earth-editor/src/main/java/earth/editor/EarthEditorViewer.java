@@ -26,7 +26,6 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	 * 
 	 * @see earth.editor.AbstractEarthEditorViewer#init()
 	 */
-	@Override
 	protected void init() {
 		createShaderProgram();
 		initParams();
@@ -74,7 +73,6 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	 * 
 	 * @see earth.editor.AbstractEarthEditorViewer#draw()
 	 */
-	@Override
 	protected void draw() {
 		glContext.clear(WebGLRenderingContext.COLOR_BUFFER_BIT | WebGLRenderingContext.DEPTH_BUFFER_BIT);
 
