@@ -57,8 +57,8 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		// One Triangle with 3 Points à 3 coordinates
 		vertexBuffer = glContext.createBuffer();
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
-		float[] vertices = new float[] { 0.0f, 1.0f, -5.0f, // x y z des ersten
-				// Dreieckpunktes
+		float[] vertices = new float[] { 
+				0.0f, 1.0f, -5.0f, // x y z des ersten Dreieckpunktes
 				-1.0f, -1.0f, -5.0f, // x y z des zweiten Dreieckpunktes
 				1.0f, -1.0f, -5.0f // x y z des dritten Dreieckpunktes
 		};
