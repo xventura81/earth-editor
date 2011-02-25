@@ -3,7 +3,9 @@ package earth.editor;
 
 import static com.google.gwt.core.client.GWT.log;
 
+import com.google.gwt.core.client.GWT;
 import com.googlecode.gwtgl.array.Float32Array;
+import com.googlecode.gwtgl.array.Uint16Array;
 import com.googlecode.gwtgl.binding.WebGLBuffer;
 import com.googlecode.gwtgl.binding.WebGLProgram;
 import com.googlecode.gwtgl.binding.WebGLRenderingContext;
@@ -17,8 +19,11 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
 	private WebGLProgram shaderProgram;
 	private int vertexPositionAttribute;
+	private int vertexColorAttribute;
 	private FloatMatrix4x4 projectionMatrix;
 	private WebGLBuffer vertexBuffer;
+	private WebGLBuffer indexBuffer;
+	private WebGLBuffer colorBuffer;
 	private WebGLUniformLocation projectionMatrixUniform;
 
 	/*
@@ -29,8 +34,9 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	protected void init() {
 		createShaderProgram();
 		initParams();
+		initBuffers();
 		initProjectionMatrix();
-		initVertexBuffer();
+		draw();
 	}
 
 	/**
@@ -51,9 +57,10 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	}
 
 	/**
-	 * Initializes the buffer containing the vertex coordinates.
+	 * Initializes the buffer containing the vertex and color coordinates.
 	 */
-	private void initVertexBuffer() {
+	private void initBuffers() {
+		// create the vertexBuffer
 		// One Triangle with 3 Points à 3 coordinates
 		vertexBuffer = glContext.createBuffer();
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
@@ -65,21 +72,68 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER,
 				Float32Array.create(vertices),
 				WebGLRenderingContext.STATIC_DRAW);
+		
+		// create the colorBuffer
+		colorBuffer = glContext.createBuffer();
+		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
+		float[] colors = new float[] { 
+				1.0f, 0.0f, 0.0f, 1.0f,
+				0.0f, 1.0f, 0.0f, 1.0f,
+				0.0f, 0.0f, 1.0f, 1.0f };
+		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER,
+				Float32Array.create(colors),
+				WebGLRenderingContext.STATIC_DRAW);
+		
+		// create the indexBuffer
+		indexBuffer = glContext.createBuffer();
+		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		int[] indices = new int[] {0, 1, 2};
+		glContext.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER,
+				Uint16Array.create(indices),
+				WebGLRenderingContext.STATIC_DRAW);
+		checkErrors();
 
 	}
 
+	/**
+	 * Checks the WebGL Errors and throws an exception if there is an error.
+	 */
+	private void checkErrors() {
+		int error = glContext.getError();
+		if (error != WebGLRenderingContext.NO_ERROR) {
+			String message = "WebGL Error: " + error;
+			GWT.log(message, null);
+			throw new RuntimeException(message);
+		}
+	}	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see earth.editor.AbstractEarthEditorViewer#draw()
 	 */
 	protected void draw() {
+		// Clear the color buffer and the depth buffer
 		glContext.clear(WebGLRenderingContext.COLOR_BUFFER_BIT | WebGLRenderingContext.DEPTH_BUFFER_BIT);
 
+		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
 		glContext.vertexAttribPointer(vertexPositionAttribute, 3, WebGLRenderingContext.FLOAT, false, 0, 0);
+		glContext.enableVertexAttribArray(vertexPositionAttribute);
 
+		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
+		glContext.vertexAttribPointer(vertexColorAttribute, 4, WebGLRenderingContext.FLOAT, false, 0, 0);
+		glContext.enableVertexAttribArray(vertexColorAttribute);
+		
+		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+		// Bind the projection matrix to the shader
 		glContext.uniformMatrix4fv(projectionMatrixUniform, false, projectionMatrix.getColumnWiseFlatData());
-		glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, 3);
+
+		// Draw the polygon
+		glContext.drawElements(WebGLRenderingContext.TRIANGLES, 3, WebGLRenderingContext.UNSIGNED_SHORT, 0);
+//		glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, 3);
+		glContext.flush();
+		checkErrors();
 	}
 
 	/**
@@ -129,14 +183,13 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		// Set the ShaderProgram active
 		glContext.useProgram(shaderProgram);
 
-		// Get the position of the
-		vertexPositionAttribute = glContext.getAttribLocation(shaderProgram,
-				"vertexPosition");
-		glContext.enableVertexAttribArray(vertexPositionAttribute);
-
+		vertexPositionAttribute = glContext.getAttribLocation(shaderProgram, "vertexPosition");
+		vertexColorAttribute = glContext.getAttribLocation(shaderProgram, "vertexColor");
+		
 		// get the position of the projectionMatrix uniform.
-		projectionMatrixUniform = glContext.getUniformLocation(shaderProgram,
-				"projectionMatrix");
+		projectionMatrixUniform = glContext.getUniformLocation(shaderProgram, "projectionMatrix");
+		
+		checkErrors();
 	}
 
 	/**
