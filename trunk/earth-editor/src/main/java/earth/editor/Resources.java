@@ -3,12 +3,14 @@ package earth.editor;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.TextResource;
+import com.google.gwt.resources.client.ClientBundle.Source;
 
-public interface Shaders extends ClientBundle {
+public interface Resources extends ClientBundle {
 
-	/** The instance of the Shaders ClientBundle. */
-	public static Shaders INSTANCE = GWT.create(Shaders.class);
+	/** The instance of the Resources ClientBundle. */
+	public static Resources INSTANCE = GWT.create(Resources.class);
 
 	/**
 	 * The fragment shader to use in the example.
@@ -26,4 +28,11 @@ public interface Shaders extends ClientBundle {
 	@Source(value = { "vertex-shader.txt" })
 	TextResource vertexShader();
 
+	/**
+	 * The texture to use in the example.
+	 * 
+	 * @return the image to use as texture.
+	 */
+	@Source(value = { "texture.png" })
+	ImageResource texture();
 }

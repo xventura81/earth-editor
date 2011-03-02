@@ -62,7 +62,6 @@ public class Vector2f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#multiply(float)
 	 */
-	@Override
 	public Vectorf multiply(float scalar) {
 		return new Vector2f(this.u * scalar, this.v * scalar);
 	}
@@ -70,7 +69,6 @@ public class Vector2f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#length()
 	 */
-	@Override
 	public float length() {
 		return (float) Math.sqrt(this.u * this.u + this.v * this.v);
 	}
@@ -78,7 +76,6 @@ public class Vector2f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#toUnitVector()
 	 */
-	@Override
 	public Vectorf toUnitVector() {
 		float length = length();
 		return new Vector2f(this.u / length, this.v / length);
@@ -87,7 +84,6 @@ public class Vector2f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#toArray()
 	 */
-	@Override
 	public float[] toArray() {
 		return new float[] { this.u, this.v };
 	}

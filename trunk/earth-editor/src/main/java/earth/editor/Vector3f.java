@@ -84,7 +84,6 @@ public class Vector3f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#multiply(float)
 	 */
-	@Override
 	public Vectorf multiply(float scalar) {
 		return new Vector3f(this.x * scalar, this.y * scalar, this.z * scalar);
 	}
@@ -92,7 +91,6 @@ public class Vector3f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#length()
 	 */
-	@Override
 	public float length() {
 		return (float) Math.sqrt(this.x * this.x + this.y * this.y + this.z
 				* this.z);
@@ -101,7 +99,6 @@ public class Vector3f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#toUnitVector()
 	 */
-	@Override
 	public Vectorf toUnitVector() {
 		float length = length();
 		return new Vector3f(this.x / length, this.y / length, this.z / length);
@@ -110,7 +107,6 @@ public class Vector3f implements Vectorf {
 	/* (non-Javadoc)
 	 * @see com.googlecode.gwtgl.example.client.util.math.Vector#toArray()
 	 */
-	@Override
 	public float[] toArray() {
 		return new float[] { this.x, this.y, this.z };
 	}
