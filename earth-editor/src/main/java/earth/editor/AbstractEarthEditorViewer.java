@@ -1,13 +1,10 @@
 
 package earth.editor;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.PushButton;
-import com.googlecode.gwtgl.binding.WebGLContextAttributes;
 import com.googlecode.gwtgl.binding.WebGLCanvas;
+import com.googlecode.gwtgl.binding.WebGLContextAttributes;
 import com.googlecode.gwtgl.binding.WebGLRenderingContext;
 
 /**

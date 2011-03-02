@@ -4,12 +4,18 @@ package earth.editor;
 import static com.google.gwt.core.client.GWT.log;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.googlecode.gwtgl.array.Float32Array;
-import com.googlecode.gwtgl.array.Uint16Array;
+import com.googlecode.gwtgl.array.Uint32Array;
 import com.googlecode.gwtgl.binding.WebGLBuffer;
 import com.googlecode.gwtgl.binding.WebGLProgram;
 import com.googlecode.gwtgl.binding.WebGLRenderingContext;
 import com.googlecode.gwtgl.binding.WebGLShader;
+import com.googlecode.gwtgl.binding.WebGLTexture;
 import com.googlecode.gwtgl.binding.WebGLUniformLocation;
 
 /**
@@ -17,14 +23,22 @@ import com.googlecode.gwtgl.binding.WebGLUniformLocation;
  */
 public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
+	private Mesh cube = CubeFactory.createNewInstance(1.0f);
+	
 	private WebGLProgram shaderProgram;
 	private int vertexPositionAttribute;
-	private int vertexColorAttribute;
-	private FloatMatrix4x4 projectionMatrix;
+	private int textureCoordAttribute;
+	
+	private float translateZ = -2;
+	private FloatMatrix perspectiveMatrix;
+	private FloatMatrix translationMatrix;
+	private FloatMatrix resultingMatrix;
+	
 	private WebGLBuffer vertexBuffer;
-	private WebGLBuffer indexBuffer;
-	private WebGLBuffer colorBuffer;
+	private WebGLBuffer vertexTextureCoordBuffer;
 	private WebGLUniformLocation projectionMatrixUniform;
+	private WebGLUniformLocation textureUniform;
+	private WebGLTexture texture;
 
 	/*
 	 * (non-Javadoc)
@@ -32,11 +46,10 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	 * @see earth.editor.AbstractEarthEditorViewer#init()
 	 */
 	protected void init() {
-		createShaderProgram();
 		initParams();
+		initTexture();
+		initShaders();
 		initBuffers();
-		initProjectionMatrix();
-		draw();
 	}
 
 	/**
@@ -46,7 +59,7 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.viewport(0, 0, webGLCanvas.getOffsetWidth(), webGLCanvas.getOffsetHeight());
 		
 		// clear with color black
-		glContext.clearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glContext.clearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
 		// clear the whole image
 		glContext.clearDepth(1.0f);
@@ -57,40 +70,18 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	}
 
 	/**
-	 * Initializes the buffer containing the vertex and color coordinates.
+	 * Initializes the vertexBuffer containing the vertex and color coordinates.
 	 */
 	private void initBuffers() {
-		// create the vertexBuffer
-		// One Triangle with 3 Points à 3 coordinates
 		vertexBuffer = glContext.createBuffer();
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
-		float[] vertices = new float[] { 
-				0.0f, 1.0f, -5.0f, // x y z des ersten Dreieckpunktes
-				-1.0f, -1.0f, -5.0f, // x y z des zweiten Dreieckpunktes
-				1.0f, -1.0f, -5.0f // x y z des dritten Dreieckpunktes
-		};
 		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER,
-				Float32Array.create(vertices),
+				Float32Array.create(cube.getVertices()),
 				WebGLRenderingContext.STATIC_DRAW);
+		vertexTextureCoordBuffer = glContext.createBuffer();
+		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexTextureCoordBuffer);
+		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(cube.getTexCoords()), WebGLRenderingContext.STATIC_DRAW);
 		
-		// create the colorBuffer
-		colorBuffer = glContext.createBuffer();
-		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
-		float[] colors = new float[] { 
-				1.0f, 0.0f, 0.0f, 1.0f,
-				0.0f, 1.0f, 0.0f, 1.0f,
-				0.0f, 0.0f, 1.0f, 1.0f };
-		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER,
-				Float32Array.create(colors),
-				WebGLRenderingContext.STATIC_DRAW);
-		
-		// create the indexBuffer
-		indexBuffer = glContext.createBuffer();
-		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
-		int[] indices = new int[] {0, 1, 2};
-		glContext.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER,
-				Uint16Array.create(indices),
-				WebGLRenderingContext.STATIC_DRAW);
 		checkErrors();
 
 	}
@@ -113,52 +104,90 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	 * @see earth.editor.AbstractEarthEditorViewer#draw()
 	 */
 	protected void draw() {
-		// Clear the color buffer and the depth buffer
+		// Clear the color vertexBuffer and the depth vertexBuffer
 		glContext.clear(WebGLRenderingContext.COLOR_BUFFER_BIT | WebGLRenderingContext.DEPTH_BUFFER_BIT);
 
+		glContext.vertexAttribPointer(vertexPositionAttribute, 3,
+				WebGLRenderingContext.FLOAT, false, 0, 0);
+		
+		// Load the vertex data
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
 		glContext.vertexAttribPointer(vertexPositionAttribute, 3, WebGLRenderingContext.FLOAT, false, 0, 0);
-		glContext.enableVertexAttribArray(vertexPositionAttribute);
-
-		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
-		glContext.vertexAttribPointer(vertexColorAttribute, 4, WebGLRenderingContext.FLOAT, false, 0, 0);
-		glContext.enableVertexAttribArray(vertexColorAttribute);
 		
-		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		// Load the texture coordinates data
+		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexTextureCoordBuffer);
+		glContext.vertexAttribPointer(textureCoordAttribute, 2, WebGLRenderingContext.FLOAT, false, 0, 0);
+		
+		perspectiveMatrix = MatrixUtil.createPerspectiveMatrix(45, 1.0f, 0.1f, 100);
+		translationMatrix = MatrixUtil.createTranslationMatrix(0, 0, translateZ);
+		resultingMatrix = perspectiveMatrix.multiply(translationMatrix);
 
-		// Bind the projection matrix to the shader
-		glContext.uniformMatrix4fv(projectionMatrixUniform, false, projectionMatrix.getColumnWiseFlatData());
+		glContext.uniformMatrix4fv(projectionMatrixUniform, false, resultingMatrix.getColumnWiseFlatData());
+		
+		// Bind the texture to texture unit 0
+		glContext.activeTexture(WebGLRenderingContext.TEXTURE0);
+		glContext.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture);
 
-		// Draw the polygon
-		glContext.drawElements(WebGLRenderingContext.TRIANGLES, 3, WebGLRenderingContext.UNSIGNED_SHORT, 0);
-//		glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, 3);
+		// Point the uniform sampler to texture unit 0
+		glContext.uniform1i(textureUniform, 0);
+		glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, 36);
 		glContext.flush();
+		checkErrors();
+	}
+	
+	/**
+	 * Initializes the texture of this example.
+	 */
+	private void initTexture() {
+		texture = glContext.createTexture();
+		glContext.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture);
+		final Image img = getImage(Resources.INSTANCE.texture());
+		img.addLoadHandler(new LoadHandler() {
+			public void onLoad(LoadEvent event) {
+				RootPanel.get().remove(img);
+				GWT.log("texture image loaded", null);
+				glContext.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture);
+				glContext.texImage2D(WebGLRenderingContext.TEXTURE_2D, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, img.getElement());
+			}
+		});
+		checkErrors();
+		glContext.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
+		glContext.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
+		glContext.bindTexture(WebGLRenderingContext.TEXTURE_2D, null);
 		checkErrors();
 	}
 
 	/**
-	 * initializes the projection matrix used in this editor.
+	 * Converts ImageResource to Image.
+	 * @param imageResource
+	 * @return {@link Image} to be used as a texture
 	 */
-	private void initProjectionMatrix() {
-		projectionMatrix = MatrixUtil.createPerspectiveMatrix(45, 1.0f, 0.1f, 100);
-	}
+	public Image getImage(final ImageResource imageResource) {
+		final Image img = new Image();
+		img.setVisible(false);
+		RootPanel.get().add(img);
 
+		img.setUrl(imageResource.getURL());
+	
+		return img;
+	}	
+	
 	/**
 	 * Creates the ShaderProgram used by the editor to render.
 	 */
-	private void createShaderProgram() {
-		// Create the Shaders
-		WebGLShader fragmentShader = getShader(WebGLRenderingContext.FRAGMENT_SHADER, Shaders.INSTANCE.fragmentShader().getText());
+	private void initShaders() {
+		// Create the Resources
+		WebGLShader fragmentShader = getShader(WebGLRenderingContext.FRAGMENT_SHADER, Resources.INSTANCE.fragmentShader().getText());
 		log("Created fragment shader");
 		
-		WebGLShader vertexShader = getShader(WebGLRenderingContext.VERTEX_SHADER, Shaders.INSTANCE.vertexShader().getText());
+		WebGLShader vertexShader = getShader(WebGLRenderingContext.VERTEX_SHADER, Resources.INSTANCE.vertexShader().getText());
 		log("Created vertex shader");
 		if (vertexShader == null || fragmentShader == null) {
 			log("Shader error");
 			throw new RuntimeException("shader error");
 		}
 
-		// create the ShaderProgram and attach the Shaders
+		// create the ShaderProgram and attach the Resources
 		shaderProgram = glContext.createProgram();
 		if (shaderProgram == null || glContext.getError() != WebGLRenderingContext.NO_ERROR) {
 			log("Program errror");
@@ -171,6 +200,11 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.attachShader(shaderProgram, fragmentShader);
 		log("fragment shader attached to shader program");
 
+		// Bind vertexPosition to attribute 0
+		glContext.bindAttribLocation(shaderProgram, 0, "vertexPosition");
+		// Bind texPosition to attribute 1
+		glContext.bindAttribLocation(shaderProgram, 1, "texPosition");
+		
 		// Link the Shader Program
 		glContext.linkProgram(shaderProgram);
 		if (!glContext.getProgramParameterb(shaderProgram,
@@ -184,10 +218,16 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.useProgram(shaderProgram);
 
 		vertexPositionAttribute = glContext.getAttribLocation(shaderProgram, "vertexPosition");
-		vertexColorAttribute = glContext.getAttribLocation(shaderProgram, "vertexColor");
+		glContext.enableVertexAttribArray(vertexPositionAttribute);
+		
+		textureCoordAttribute = glContext.getAttribLocation(shaderProgram, "texPosition");
+	    glContext.enableVertexAttribArray(textureCoordAttribute);
 		
 		// get the position of the projectionMatrix uniform.
 		projectionMatrixUniform = glContext.getUniformLocation(shaderProgram, "projectionMatrix");
+		
+		// get the position of the tex uniform.
+		textureUniform = glContext.getUniformLocation(shaderProgram, "tex");
 		
 		checkErrors();
 	}
