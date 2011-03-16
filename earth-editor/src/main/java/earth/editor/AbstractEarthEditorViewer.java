@@ -3,6 +3,8 @@ package earth.editor;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.gwtgl.binding.WebGLCanvas;
 import com.googlecode.gwtgl.binding.WebGLContextAttributes;
 import com.googlecode.gwtgl.binding.WebGLRenderingContext;
@@ -36,6 +38,11 @@ public abstract class AbstractEarthEditorViewer extends FlexTable {
 		glContext.viewport(0, 0, 1000, 1000);
 
 		setWidget(1, 0, webGLCanvas);
+		
+		HTML exampleDescription = new HTML("<h2>Texture2D Binding Example</h2><h3>Controls</h3><p>PAGEGUP - Zoom in<br/>PAGEDOWN - Zoom out</p>");
+                VerticalPanel descriptionAndControls = new VerticalPanel();
+                descriptionAndControls.add(exampleDescription);
+                setWidget(1, 1, descriptionAndControls);
 		
 //		// add a ClickHandler to start the editor when the button is clicked
 //		button.addClickHandler(new ClickHandler() {

@@ -1,5 +1,5 @@
 
-package earth.editor;
+package earth.editor.maths;
 
 import java.util.Arrays;
 

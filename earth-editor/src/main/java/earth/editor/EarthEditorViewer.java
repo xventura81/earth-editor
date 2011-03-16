@@ -4,6 +4,9 @@ package earth.editor;
 import static com.google.gwt.core.client.GWT.log;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -18,12 +21,18 @@ import com.googlecode.gwtgl.binding.WebGLShader;
 import com.googlecode.gwtgl.binding.WebGLTexture;
 import com.googlecode.gwtgl.binding.WebGLUniformLocation;
 
+import earth.editor.figure.CubeFactory;
+import earth.editor.figure.Mesh;
+import earth.editor.figure.SphereFactory;
+import earth.editor.maths.FloatMatrix;
+
 /**
  * Example that shows the Editor created with the GwtGL binding.
  */
 public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
-	private Mesh cube = CubeFactory.createNewInstance(1.0f);
+	private Mesh mesh = SphereFactory.createNewInstance(25,25,5);
+    	//private Mesh mesh = CubeFactory.createNewInstance(1.0f);
 	
 	private WebGLProgram shaderProgram;
 	private int vertexPositionAttribute;
@@ -39,6 +48,9 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	private WebGLUniformLocation projectionMatrixUniform;
 	private WebGLUniformLocation textureUniform;
 	private WebGLTexture texture;
+	
+	private Camera camera = new Camera();
+	private FloatMatrix rotationMatrix;
 
 	/*
 	 * (non-Javadoc)
@@ -50,6 +62,8 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		initTexture();
 		initShaders();
 		initBuffers();
+		
+		initControls();
 	}
 
 	/**
@@ -59,7 +73,7 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.viewport(0, 0, webGLCanvas.getOffsetWidth(), webGLCanvas.getOffsetHeight());
 		
 		// clear with color black
-		glContext.clearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glContext.clearColor(0.5f, 0.5f, 0.5f, 0.9f);
 
 		// clear the whole image
 		glContext.clearDepth(1.0f);
@@ -68,6 +82,32 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.enable(WebGLRenderingContext.DEPTH_TEST);
 		glContext.depthFunc(WebGLRenderingContext.LEQUAL);
 	}
+	
+	/**
+	 * Initializes the controls of the example.
+	 */
+	private void initControls() {
+		webGLCanvas.addMouseMoveHandler(camera);		
+		webGLCanvas.addMouseDownHandler(camera);		
+		webGLCanvas.addMouseUpHandler(camera);
+		
+		webGLCanvas.addKeyDownHandler(new KeyDownHandler() {
+			@Override
+			public void onKeyDown(KeyDownEvent event) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_PAGEUP) {
+					translateZ += 0.1f;
+					event.stopPropagation();
+					event.preventDefault();
+				}
+				if (event.getNativeKeyCode() == KeyCodes.KEY_PAGEDOWN) {
+					translateZ -= 0.1f;
+					event.stopPropagation();
+					event.preventDefault();
+				}
+			}
+		});
+	}
+
 
 	/**
 	 * Initializes the vertexBuffer containing the vertex and color coordinates.
@@ -76,11 +116,11 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		vertexBuffer = glContext.createBuffer();
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
 		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER,
-				Float32Array.create(cube.getVertices()),
+				Float32Array.create(mesh.getVertices()),
 				WebGLRenderingContext.STATIC_DRAW);
 		vertexTextureCoordBuffer = glContext.createBuffer();
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexTextureCoordBuffer);
-		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(cube.getTexCoords()), WebGLRenderingContext.STATIC_DRAW);
+		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(mesh.getTexCoords()), WebGLRenderingContext.STATIC_DRAW);
 		
 		checkErrors();
 
@@ -120,7 +160,10 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		
 		perspectiveMatrix = MatrixUtil.createPerspectiveMatrix(45, 1.0f, 0.1f, 100);
 		translationMatrix = MatrixUtil.createTranslationMatrix(0, 0, translateZ);
-		resultingMatrix = perspectiveMatrix.multiply(translationMatrix);
+		rotationMatrix = MatrixUtil.createRotationMatrix(camera.getRotationXAxis(), camera.getRotationYAxis(), 0);
+		
+		resultingMatrix = perspectiveMatrix.multiply(translationMatrix).multiply(rotationMatrix);;
+		
 
 		glContext.uniformMatrix4fv(projectionMatrixUniform, false, resultingMatrix.getColumnWiseFlatData());
 		

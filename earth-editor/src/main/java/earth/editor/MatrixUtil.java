@@ -3,6 +3,7 @@ package earth.editor;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import earth.editor.maths.FloatMatrix4x4;
 
 /**
  * Contains several helper methods to construct matrices like projection (etc).

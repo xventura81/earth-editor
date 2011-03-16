@@ -1,4 +1,4 @@
-package earth.editor;
+package earth.editor.maths;
 
 /**
  * Interface of vector with float components

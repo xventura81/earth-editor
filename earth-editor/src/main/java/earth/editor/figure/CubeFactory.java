@@ -1,8 +1,12 @@
-package earth.editor;
+package earth.editor.figure;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import earth.editor.maths.Vector2f;
+import earth.editor.maths.Vector3f;
+
 
 import static earth.editor.ConversionUtils.*;
 

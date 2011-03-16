@@ -1,5 +1,5 @@
 
-package earth.editor;
+package earth.editor.maths;
 
 /**
  * Represents a vector with three elements.
