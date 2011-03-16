@@ -1,4 +1,4 @@
-package earth.editor;
+package earth.editor.maths;
 
 /**
  * Represents a 4x4 matrix.

@@ -2,6 +2,7 @@ package earth.editor;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 
@@ -13,6 +14,8 @@ public class Earth_editor implements EntryPoint {
     	
     			EarthEditorViewer earthEditorViewer = new EarthEditorViewer();
     			tp.add(earthEditorViewer, "Earth Editor" );
+    			
+    			//tp.add(new Button());
     			
     			tp.selectTab(0);
     			RootPanel.get("gwtGL").add(tp);

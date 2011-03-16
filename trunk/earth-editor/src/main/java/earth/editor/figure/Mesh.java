@@ -1,4 +1,4 @@
-package earth.editor;
+package earth.editor.figure;
 
 /**
  * Class that holds a mesh's data 
