@@ -33,6 +33,6 @@ public interface Resources extends ClientBundle {
 	 * 
 	 * @return the image to use as texture.
 	 */
-	@Source(value = { "texture.png" })
+	@Source(value = { "textureMapa.gif" })
 	ImageResource texture();
 }
