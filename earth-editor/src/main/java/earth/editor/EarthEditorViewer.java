@@ -13,6 +13,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.googlecode.gwtgl.array.Float32Array;
+import com.googlecode.gwtgl.array.Uint16Array;
 import com.googlecode.gwtgl.array.Uint32Array;
 import com.googlecode.gwtgl.binding.WebGLBuffer;
 import com.googlecode.gwtgl.binding.WebGLProgram;
@@ -22,6 +23,7 @@ import com.googlecode.gwtgl.binding.WebGLTexture;
 import com.googlecode.gwtgl.binding.WebGLUniformLocation;
 
 import earth.editor.figure.CubeFactory;
+import earth.editor.figure.IndexedMesh;
 import earth.editor.figure.Mesh;
 import earth.editor.figure.SphereFactory;
 import earth.editor.maths.FloatMatrix;
@@ -31,8 +33,8 @@ import earth.editor.maths.FloatMatrix;
  */
 public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
-	private Mesh mesh = SphereFactory.createNewInstance(25,25,5);
-    	//private Mesh mesh = CubeFactory.createNewInstance(1.0f);
+	private IndexedMesh mesh = (IndexedMesh) SphereFactory.createNewInstance(100 ,100, 1);
+    //private Mesh mesh = CubeFactory.createNewInstance(1.0f);
 	
 	private WebGLProgram shaderProgram;
 	private int vertexPositionAttribute;
@@ -45,6 +47,7 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 	
 	private WebGLBuffer vertexBuffer;
 	private WebGLBuffer vertexTextureCoordBuffer;
+	private WebGLBuffer indexBuffer;
 	private WebGLUniformLocation projectionMatrixUniform;
 	private WebGLUniformLocation textureUniform;
 	private WebGLTexture texture;
@@ -122,6 +125,14 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexTextureCoordBuffer);
 		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(mesh.getTexCoords()), WebGLRenderingContext.STATIC_DRAW);
 		
+		// create the indexBuffer
+		indexBuffer = glContext.createBuffer();
+		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		int[] indices = mesh.getIndices();
+		glContext.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER,
+				Uint16Array.create(indices),
+				WebGLRenderingContext.STATIC_DRAW);
+		
 		checkErrors();
 
 	}
@@ -158,6 +169,8 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexTextureCoordBuffer);
 		glContext.vertexAttribPointer(textureCoordAttribute, 2, WebGLRenderingContext.FLOAT, false, 0, 0);
 		
+		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		
 		perspectiveMatrix = MatrixUtil.createPerspectiveMatrix(45, 1.0f, 0.1f, 100);
 		translationMatrix = MatrixUtil.createTranslationMatrix(0, 0, translateZ);
 		rotationMatrix = MatrixUtil.createRotationMatrix(camera.getRotationXAxis(), camera.getRotationYAxis(), 0);
@@ -173,7 +186,8 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
 		// Point the uniform sampler to texture unit 0
 		glContext.uniform1i(textureUniform, 0);
-		glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, 36);
+		glContext.drawElements(WebGLRenderingContext.TRIANGLES, mesh.getIndices().length, WebGLRenderingContext.UNSIGNED_SHORT, 0);
+		//glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, mesh.getVertices().length/3);
 		glContext.flush();
 		checkErrors();
 	}
