@@ -36,8 +36,8 @@ public class SphereFactory {
 		double x = cosPhi * sinTheta;
 		double y = cosTheta;
 		double z = sinPhi * sinTheta;
-		double u = 1 - (longNumber / longitudeBands);
-		double v = latNumber / latitudeBands;
+		double u = 1 - ((double)longNumber / (double)longitudeBands);
+		double v = (double)latNumber / (double)latitudeBands;
 
 		vertexNormalsList.add((float) x);
 		vertexNormalsList.add((float) y);
