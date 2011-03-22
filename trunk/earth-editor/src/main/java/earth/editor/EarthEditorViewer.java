@@ -33,8 +33,8 @@ import earth.editor.maths.FloatMatrix;
  */
 public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
-	private IndexedMesh mesh = (IndexedMesh) SphereFactory.createNewInstance(100 ,100, 1);
-    //private Mesh mesh = CubeFactory.createNewInstance(1.0f);
+	private Mesh mesh = SphereFactory.createNewInstance(8 ,8, 1);
+	//private Mesh mesh = CubeFactory.createNewInstance(1.0f);
 	
 	private WebGLProgram shaderProgram;
 	private int vertexPositionAttribute;
@@ -126,15 +126,15 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(mesh.getTexCoords()), WebGLRenderingContext.STATIC_DRAW);
 		
 		// create the indexBuffer
-		indexBuffer = glContext.createBuffer();
-		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
-		int[] indices = mesh.getIndices();
-		glContext.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER,
+		if(mesh instanceof IndexedMesh){
+		    indexBuffer = glContext.createBuffer();
+		    glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		    int[] indices = ((IndexedMesh)mesh).getIndices();
+		    glContext.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER,
 				Uint16Array.create(indices),
-				WebGLRenderingContext.STATIC_DRAW);
-		
+				WebGLRenderingContext.STATIC_DRAW);				    
+		}
 		checkErrors();
-
 	}
 
 	/**
@@ -169,7 +169,9 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 		glContext.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexTextureCoordBuffer);
 		glContext.vertexAttribPointer(textureCoordAttribute, 2, WebGLRenderingContext.FLOAT, false, 0, 0);
 		
-		glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		if(mesh instanceof IndexedMesh){
+		    glContext.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		}
 		
 		perspectiveMatrix = MatrixUtil.createPerspectiveMatrix(45, 1.0f, 0.1f, 100);
 		translationMatrix = MatrixUtil.createTranslationMatrix(0, 0, translateZ);
@@ -186,8 +188,13 @@ public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
 		// Point the uniform sampler to texture unit 0
 		glContext.uniform1i(textureUniform, 0);
-		glContext.drawElements(WebGLRenderingContext.TRIANGLES, mesh.getIndices().length, WebGLRenderingContext.UNSIGNED_SHORT, 0);
-		//glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, mesh.getVertices().length/3);
+		if(mesh instanceof IndexedMesh){
+		    glContext.drawElements(WebGLRenderingContext.TRIANGLES, ((IndexedMesh)mesh).getIndices().length, WebGLRenderingContext.UNSIGNED_SHORT, 0);
+		}
+		else{
+		    glContext.drawArrays(WebGLRenderingContext.TRIANGLES, 0, mesh.getVertices().length/3);
+		}
+				
 		glContext.flush();
 		checkErrors();
 	}
