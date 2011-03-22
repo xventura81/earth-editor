@@ -33,7 +33,7 @@ import earth.editor.maths.FloatMatrix;
  */
 public class EarthEditorViewer extends AbstractEarthEditorViewer {
 
-	private Mesh mesh = SphereFactory.createNewInstance(8 ,8, 1);
+	private Mesh mesh = SphereFactory.createNewInstance(25 ,25, 1);
 	//private Mesh mesh = CubeFactory.createNewInstance(1.0f);
 	
 	private WebGLProgram shaderProgram;
