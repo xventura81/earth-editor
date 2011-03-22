@@ -42,8 +42,8 @@ public class Camera implements MouseMoveHandler, MouseDownHandler, MouseUpHandle
 		oldMouseX = event.getX();
 		oldMouseY = event.getY();
 		if(mouseDown){
-			angleX += (mouseMoveY/10f) % 360;
-			angleY += (mouseMoveX/10f) % 360;
+			angleX -= (mouseMoveY/10f) % 360;
+			angleY -= (mouseMoveX/10f) % 360;
 		}
 		
 	}
