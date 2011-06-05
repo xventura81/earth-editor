@@ -1,0 +1,156 @@
+@CHARSET "ISO-8859-1";
+
+body{	
+	vertical-align: top;
+	outline: 0 none;
+	border: 0 none;	
+}
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
+	margin:0;
+	padding:0;
+	font-family: arial,helvetica,sans-serif;
+	color: #333333;
+}
+
+#page{
+	float:left;
+	width:100%;
+	margin: 0 auto;
+	padding: 0 auto;	
+	padding-bottom:50px;
+	height: auto;
+	background-color: #361774;
+	background-image: url("../images/fondoBody.jpg");
+	background-position: right bottom;
+	background-repeat: no-repeat;
+}
+
+#page_wrap{
+	width:940px;
+	margin: 0 auto;
+}
+
+#page #header{
+	float:left;
+	width: 100%;
+	padding-top: 5%;
+	padding-bottom: 2%;
+	background: url("../images/fnd_header.jpg") no-repeat scroll 0 0 transparent;
+	border: 1px solid #FFFFFF;
+}
+
+#logo_image{
+	width: 7%;
+	margin-left:55%;
+	float:left;
+}
+
+#logo_title{
+	width: 35%;
+	float: left;
+}
+
+#menu{
+	padding-top:5px;
+	padding-bottom:0px;
+	width: 100%;
+	float:left;
+	background-color: #000000;
+}
+
+.menu_list li{	
+	float:left;
+	list-style-type: none;
+	padding-left: 2%;
+	padding-right: 2%;
+	padding-top:3px;
+	padding-bottom:3px;
+	display: inline;
+	white-space:nowrap;
+}
+
+.menu_list li:hover{	
+	background-color: #361774;
+}
+
+.menu_list li.selected{	
+	background-color: white;
+}
+
+.menu_list li a{	
+	color: white;
+	font-size: 16px;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.menu_list li.selected a{	
+	color: #2D0E45;	
+}
+
+#container{
+	float:left;
+	width: 100%;
+	background-color: #FFFFFF;
+	padding-top: 20px;
+}
+
+#footer{
+	float:left;
+	width: 100%;
+	padding-top: 20px;
+}
+
+#container_banner{
+	width: 100%;
+}
+
+#info{
+	width: 100%;
+	float: left;
+	padding-top: 3%;
+	padding-bottom: 3%;
+	padding-left: 2%;	
+}
+
+.info_box{
+	float: left;
+	width: 30%;
+	margin-left: 1%;
+	margin-right: 1%;
+	background: none repeat scroll 0 0 #EEEEEE;
+	font-size: medium;	
+	padding-top: 1%;
+	padding-bottom: 1%;
+}
+
+.info_box_title{
+	font-weight:bold;
+	padding-bottom:1%;
+	color:black;
+	font-size: large;
+}
+
+.info_box p{
+	padding-left: 10%;
+	padding-right: 10%;
+	text-align:center;
+	color: #361774;
+}
+
+#historia_empresa{
+	margin: 5%;
+	float: left;
+	width: 70%;
+}
+
+#imagesPreview img{
+	border:none;
+}
+
+#imagesPreview a img.last {
+	margin-right: 0;	
+}
+
+

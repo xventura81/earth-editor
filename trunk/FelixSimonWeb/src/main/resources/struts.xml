@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC 
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+		
+	<package name="" extends="struts-default" >
+		<result-types>
+			<result-type name="tiles" class="org.apache.struts2.views.tiles.TilesResult" />
+		</result-types>
+
+		<!-- punt de entrada a la aplicacio -->
+					
+		<action name="index">
+			<result name="success" type="tiles">myapp.homepage</result>
+		</action>
+		
+		<action name="empresa">
+			<result name="success" type="tiles">myapp.empresa</result>
+		</action>
+		
+		<action name="calidad">
+			<result name="success" type="tiles">myapp.calidad</result>
+		</action>
+		
+		<action name="productos">
+			<result name="success" type="tiles">myapp.productos</result>
+		</action>
+		
+		<action name="imagenes">
+			<result name="success" type="tiles">myapp.imagenes</result>
+		</action>
+		
+		<action name="contacto">
+			<result name="success" type="tiles">myapp.contacto</result>
+		</action>
+						
+	</package>
+	
+	</struts>
